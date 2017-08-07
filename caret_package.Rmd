@@ -5,6 +5,13 @@ output:
   html_notebook: default
 ---
 
+# 导言
+
+很多人看到机器学习（Machine learning）会说，我只有几个样本，没有办法做Machine learing。事实真的是这个样子吗？其实一个样本只需要两组数据，比如一个个体的ChIP-seq（或者BS-seq）数据和RNA-seq数据，就可以来做Machine learning来回答生物学问题。
+
+Really? 是的，你没有看错。想知道怎么做吗，看我娓娓道来。先预告本文不会涉及如何使用一个个体的ChIP-seq（或者BS-seq）数据和RNA-seq数据来做机器学习。在后续的文章我会介绍，本文我会主要用一个R实例来揭开你机器学习的庐山真面目。后面的一系列文章我会介绍如何使用一个个体的ChIP-seq（或者BS-seq）数据和RNA-seq数据进行机器学习来解决生物学问题。如果你对此感兴趣，敬请关注本公众号。
+
+接下来我们会一步步介绍如果用R包`caret`进行机器学习建模。
 
 # R包`caret`简介
 
@@ -28,8 +35,7 @@ AppliedPredictiveModeling  ##展示数据
 ellipse  ##　AppliedPredictiveModeling依赖此R包
 ```
 
-本文需要的数据`iris`。Iris也称鸢尾花卉数据集，是一类多重变量分析的数据集。通过花萼长度，花萼宽度，花瓣长度，花瓣宽度4个属性预测鸢尾花卉属于（Setosa，Versicolour，Virginica）三个种类中的哪一类。
-
+本文需要的数据`iris`。Iris也称鸢尾花卉数据集，是一类多重变量分析的数据集。通过花萼长度，花萼宽度，花瓣长度，花瓣宽度4个属性预测鸢尾花卉属于（Setosa，Versicolour，Virginica）三个种类中的哪一类。本文主要介绍如何使用机器学习通过花萼长度，花萼宽度，花瓣长度，花瓣宽度4个特征变量来预测花的种类。
 
 ```{r}
 str(iris)
@@ -37,7 +43,7 @@ head(iris)
 dim(iris)
 ```
 
-可见该数据集共有150个个体，4个属性，三个类别。
+通过上面的R代码，我们可以发现该数据集共有150个个体，4个属性（特征变量），三个类别。
 
 # 数据可视化展示
 
@@ -58,7 +64,6 @@ featurePlot(x = iris[, 1:4],
 ```
 
 ## 使用椭圆进行分类的散点图（Scatterplot Matrix with Ellipses）
-
 
 ```{r}
 #install.packages("ellipse")
@@ -120,7 +125,6 @@ rfVarImp = varImp(fit_rf)
 rfVarImp
 ```
 
-The Kappa statistic (or value) is a metric that compares an Observed Accuracy with an Expected Accuracy (random chance). This is a much more representative measure of the performance of your model. A nice answer to explain this can be found here (Stats Exchange)[https://stats.stackexchange.com/questions/82162/cohens-kappa-in-plain-english]
 
 
 ```{r}
@@ -132,10 +136,13 @@ test_set  = iris[-train_index, ]
 fit_rf_cv <- train(Species ~ ., data=train_set, method='rf', metric = "Accuracy",
                    trControl=trainControl(method="cv",number=5)) 
 fit_rf_cv
+
+##计算特征变量的重要性
 rfVarImpcv = varImp(fit_rf_cv)
 rfVarImpcv
-                       
 ```
+
+通过结果我们可以发现在四个变量中最重要的变量是Petal.Width，其次是Petal.Length。
 
 ## 在测试数据上检验模型的优劣
 
@@ -144,7 +151,9 @@ rfVarImpcv
 具体代码如下：
 
 ```{r}
+## 在模型上对测试数据进行预测
 test_set$predict_rf <- predict(fit_rf_cv, test_set, "raw")
+## 对预测的结果进行评估
 confusionMatrix(test_set$predict_rf, test_set$Species)
 ```
 
@@ -163,4 +172,3 @@ How to Perform a Logistic Regression in R
 https://datascienceplus.com/perform-logistic-regression-in-r/
 
 ```
-
