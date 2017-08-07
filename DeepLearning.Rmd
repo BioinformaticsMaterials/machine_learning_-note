@@ -1,0 +1,22 @@
+---
+title: "Deep Learning"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+
+Reference:
+
+https://github.com/Vikramank/Deep-Learning-/blob/master/Iris%20data%20classification.ipynb
+
+https://cran.r-project.org/web/packages/deepnet/index.html
+
+http://blog.echen.me/2011/07/18/introduction-to-restricted-boltzmann-machines/
+
+http://blog.echen.me/2017/05/30/exploring-lstms/
+
+https://archive.ics.uci.edu/ml/datasets/iris
+
+http://www.parallelr.com/r-deep-neural-network-from-scratch/
+
