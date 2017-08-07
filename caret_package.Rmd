@@ -1,0 +1,166 @@
+---
+title: "Caret实例-Random Forest"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+
+# R包`caret`简介
+
+R包`caret`是（Classification And REgression Training）的简称。该包包含一系列的函数，通过这些函数是机器学习中建模过程更简单。
+
+这个包包含的工具有：
+
+* 数据分割
+* 数据预处理
+* 特征选择
+* 通过重采样方法来调试模型
+* 特征重要性评估
+
+# 导入需要的R包
+
+本文需要的R包如下：
+
+```
+caret   ## 进行机器学习建模
+AppliedPredictiveModeling  ##展示数据
+ellipse  ##　AppliedPredictiveModeling依赖此R包
+```
+
+本文需要的数据`iris`。Iris也称鸢尾花卉数据集，是一类多重变量分析的数据集。通过花萼长度，花萼宽度，花瓣长度，花瓣宽度4个属性预测鸢尾花卉属于（Setosa，Versicolour，Virginica）三个种类中的哪一类。
+
+
+```{r}
+str(iris)
+head(iris)
+dim(iris)
+```
+
+可见该数据集共有150个个体，4个属性，三个类别。
+
+# 数据可视化展示
+
+通常在对数据进行建模前，首先需要对数据中的变量进行初步的了解。对于`iris`这样的数据我们可以使用`AppliedPredictiveModeling`来生成散点图，
+
+## 散点图
+
+```{r}
+#install.packages("AppliedPredictiveModeling")
+library(AppliedPredictiveModeling)
+transparentTheme(trans = .4)
+library(caret)
+featurePlot(x = iris[, 1:4], 
+            y = iris$Species, 
+            plot = "pairs",
+            ## Add a key at the top
+            auto.key = list(columns = 3))
+```
+
+## 使用椭圆进行分类的散点图（Scatterplot Matrix with Ellipses）
+
+
+```{r}
+#install.packages("ellipse")
+featurePlot(x = iris[, 1:4], 
+            y = iris$Species, 
+            plot = "ellipse",
+            ## Add a key at the top
+            auto.key = list(columns = 3))
+```
+
+## 数据变量的分布密度图
+
+```{r}
+featurePlot(x = iris[, 1:4], 
+            y = iris$Species,
+            plot = "density", 
+            ## Pass in options to xyplot() to 
+            ## make it prettier
+            scales = list(x = list(relation="free"), 
+                          y = list(relation="free")), 
+            adjust = 1.5, 
+            pch = "|", 
+            layout = c(4, 1), 
+            auto.key = list(columns = 3))
+```
+
+## 箱线图
+
+```{r}
+featurePlot(x = iris[, 1:4], 
+            y = iris$Species, 
+            plot = "box", 
+            ## Pass in options to bwplot() 
+            scales = list(y = list(relation="free"),
+                          x = list(rot = 90)),  
+            layout = c(4,1 ), 
+            auto.key = list(columns = 2))
+```
+ 
+ 
+# Random forest 建模
+
+在本文章，我们使用Random forest进行数据建模。Random forest的一个很大优势是可以计算出每个特征变量的重要性（Variabe importance)。这样可以帮助我们进行特征选择。
+
+## 通过训练数据（Training data）进行建模
+
+
+```{r}
+set.seed(186)
+train_index <- createDataPartition(iris$Species, p = 0.75, , times=1, list = FALSE)
+
+train_set = iris[train_index, ]
+test_set  = iris[-train_index, ]
+## Resampling: Bootstrapped (25 reps) by defaultcross 
+fit_rf <- train(Species ~ ., data=train_set, method='rf') 
+fit_rf
+
+rfVarImp = varImp(fit_rf)
+rfVarImp
+```
+
+The Kappa statistic (or value) is a metric that compares an Observed Accuracy with an Expected Accuracy (random chance). This is a much more representative measure of the performance of your model. A nice answer to explain this can be found here (Stats Exchange)[https://stats.stackexchange.com/questions/82162/cohens-kappa-in-plain-english]
+
+
+```{r}
+set.seed(186)
+train_index <- createDataPartition(iris$Species, p = 0.75, , times=1, list = FALSE)
+
+train_set = iris[train_index, ]
+test_set  = iris[-train_index, ]
+fit_rf_cv <- train(Species ~ ., data=train_set, method='rf', metric = "Accuracy",
+                   trControl=trainControl(method="cv",number=5)) 
+fit_rf_cv
+rfVarImpcv = varImp(fit_rf_cv)
+rfVarImpcv
+                       
+```
+
+## 在测试数据上检验模型的优劣
+
+前面讲到我们使用Randm forest在训练数据上进行建模，接着通常我们需要对模型在测试数据上进行测试。
+
+具体代码如下：
+
+```{r}
+test_set$predict_rf <- predict(fit_rf_cv, test_set, "raw")
+confusionMatrix(test_set$predict_rf, test_set$Species)
+```
+
+通过结果我们可以看到该模型的准确性是0.94，95%置信区间是 : (0.8134, 0.9932)。
+
+Reference:
+
+```
+caret demostration with kaggle bikeshare data (I)
+https://rpubs.com/chengjiun/52658
+An example of using Random Forest in Caret with R.
+http://bigcomputing.blogspot.com/2014/10/an-example-of-using-random-forest-in.html
+https://topepo.github.io/caret/model-training-and-tuning.html
+The caret Package https://topepo.github.io/caret/model-training-and-tuning.html
+How to Perform a Logistic Regression in R
+https://datascienceplus.com/perform-logistic-regression-in-r/
+
+```
+
