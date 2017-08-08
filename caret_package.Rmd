@@ -117,22 +117,6 @@ train_index <- createDataPartition(iris$Species, p = 0.75, , times=1, list = FAL
 
 train_set = iris[train_index, ]
 test_set  = iris[-train_index, ]
-## Resampling: Bootstrapped (25 reps) by defaultcross 
-fit_rf <- train(Species ~ ., data=train_set, method='rf') 
-fit_rf
-
-rfVarImp = varImp(fit_rf)
-rfVarImp
-```
-
-
-
-```{r}
-set.seed(186)
-train_index <- createDataPartition(iris$Species, p = 0.75, , times=1, list = FALSE)
-
-train_set = iris[train_index, ]
-test_set  = iris[-train_index, ]
 fit_rf_cv <- train(Species ~ ., data=train_set, method='rf', metric = "Accuracy",
                    trControl=trainControl(method="cv",number=5)) 
 fit_rf_cv
@@ -142,7 +126,7 @@ rfVarImpcv = varImp(fit_rf_cv)
 rfVarImpcv
 ```
 
-通过结果我们可以发现在四个变量中最重要的变量是Petal.Width，其次是Petal.Length。
+通过结果我们可以发现在四个变量中最重要的变量是Petal.Width，其次是Petal.Length。这一步非常重要，试想如果我们有不同种癌症的基因表达数据，我们的生物学问题是寻找能够预测不同类型癌症的Biomarker，那么我们就可以使用这一步来进行Biomarker的筛选。
 
 ## 在测试数据上检验模型的优劣
 
@@ -164,11 +148,21 @@ Reference:
 ```
 caret demostration with kaggle bikeshare data (I)
 https://rpubs.com/chengjiun/52658
+
 An example of using Random Forest in Caret with R.
+
 http://bigcomputing.blogspot.com/2014/10/an-example-of-using-random-forest-in.html
+
 https://topepo.github.io/caret/model-training-and-tuning.html
+
 The caret Package https://topepo.github.io/caret/model-training-and-tuning.html
+
 How to Perform a Logistic Regression in R
+
 https://datascienceplus.com/perform-logistic-regression-in-r/
+
+http://andland.github.io/blog/2012/07/19/random-forest-variable-importance/
+
+http://machinelearningmastery.com/feature-selection-with-the-caret-r-package/
 
 ```

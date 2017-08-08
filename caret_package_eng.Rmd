@@ -48,13 +48,9 @@ head(iris)
 dim(iris)
 ```
 
-
-
 # Visulization
 
-
 ## Scatterplot Matrix
-
 
 ```{r}
 #install.packages("AppliedPredictiveModeling")
@@ -80,7 +76,6 @@ featurePlot(x = iris[, 1:4],
 ```
 
 ## Overlayed Density Plots
-
 
 ```{r}
 featurePlot(x = iris[, 1:4], 
@@ -111,8 +106,6 @@ featurePlot(x = iris[, 1:4],
  
  
 # Machine leraning - Random forest
-
-
 
 ## Model Train 
 
